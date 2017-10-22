@@ -1,5 +1,3 @@
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
-
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,545 +23,591 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-public class GraphGenerate {
-    private final static int bufSize = 1024;
-    private static int numOfwords = 1024;
-    private static String buf = "";
-    private static String path = "./";
-    private static String libPath = "./bin/";
-    private static int[][] graphOfWords = new int[bufSize][bufSize];
-    private static int INF = 1000000000;
-    private static Map m = new HashMap();
-    private static int[][] minRouteMatrix = new int[bufSize][bufSize];
-    private static int[][] pathMatrix = new int[bufSize][bufSize];
-    private static void Floyd() {
-        //åˆå§‹åŒ–æœ€çŸ­è·¯å¾„æ•°ç»„
-        for (int i = 0; i < numOfwords; i++) {
-            for (int j = 0; j < numOfwords; j++) {
-                if (graphOfWords[i][j] > 0) {
-                    minRouteMatrix[i][j] = graphOfWords[i][j];
-                } else {
-                    minRouteMatrix[i][j] = INF;
-                }
-            }
+public class qaq {
+  private static final int bufSize = 1024;
+  private static int numOfwords = 1024;
+  private static String buf = "";
+  private static String path = "./";
+  private static String libPath = "./bin/";
+  private static int[][] graphOfWords = new int[bufSize][bufSize];
+  private static int INF = 1000000000;
+  private static Map m = new HashMap();
+  private static int[][] minRouteMatrix = new int[bufSize][bufSize];
+  private static int[][] pathMatrix = new int[bufSize][bufSize];
+  private static void floyd() {
+    //³õÊ¼»¯×î¶ÌÂ·¾¶Êı×é
+    for (int i = 0; i < numOfwords; i++) {
+      for (int j = 0; j < numOfwords; j++) {
+        if (graphOfWords[i][j] > 0) {
+          minRouteMatrix[i][j] = graphOfWords[i][j];
+        } else {
+          minRouteMatrix[i][j] = INF;
         }
-        //å¼€å§‹è®¡ç®—æœ€çŸ­è·¯å¾„å¹¶ä¸”è®°å½•è·¯å¾„
-        for (int k = 0; k < numOfwords; k++) {
-            for (int i = 0; i < numOfwords; i++){
-                for (int j = 0; j < numOfwords; j++) {
-                    if (minRouteMatrix[i][k] + minRouteMatrix[k][j] < minRouteMatrix[i][j]) {
-                       minRouteMatrix[i][j] = minRouteMatrix[i][k] + minRouteMatrix[k][j];
-                       pathMatrix[i][j] = k;
-                    }
-                }
-            }
-        }
+      }
     }
-    private static String ReadFile(String fileName) {
-        Reader reader = null;
+    //¿ªÊ¼¼ÆËã×î¶ÌÂ·¾¶²¢ÇÒ¼ÇÂ¼Â·¾¶
+    for (int k = 0; k < numOfwords; k++) {
+      for (int i = 0; i < numOfwords; i++) {
+        for (int j = 0; j < numOfwords; j++) {
+          if (minRouteMatrix[i][k] + minRouteMatrix[k][j] < minRouteMatrix[i][j]) {
+            minRouteMatrix[i][j] = minRouteMatrix[i][k] + minRouteMatrix[k][j];
+            pathMatrix[i][j] = k;
+          }
+        }
+      }
+    }
+  }
+  private static String ReadFile(String fileName) {
+    Reader reader = null;
+    try {
+      // Ò»´Î¶Á¶à¸ö×Ö·û
+      int tempchars;
+      reader = new InputStreamReader(new FileInputStream(fileName));
+      String tempBuf = "";
+      // ¶ÁÈë¶à¸ö×Ö·ûµ½×Ö·ûÊı×éÖĞ£¬charreadÎªÒ»´Î¶ÁÈ¡×Ö·ûÊı
+      int flag = 0;
+      while ((tempchars = reader.read()) != -1)
+      {
+        if ((tempchars >= 97 && tempchars <= 122) || tempchars >= 65 && tempchars <= 90) 
+        {
+          flag = 0;
+          tempBuf += (char) tempchars;
+        }
+         else {
+          if (flag == 0)
+          {
+            buf += tempBuf + " ";
+            tempBuf = "";
+          }
+          flag = 1;
+        }
+      }
+      reader.close();
+      return buf;
+    } catch (Exception e1) {
+      System.out.println(e1);
+      return "";
+    } finally {
+      if (reader != null) {
         try {
-            // ä¸€æ¬¡è¯»å¤šä¸ªå­—ç¬¦
-            int tempchars;
-            reader = new InputStreamReader(new FileInputStream(fileName));
-            String tempBuf = "";
-            // è¯»å…¥å¤šä¸ªå­—ç¬¦åˆ°å­—ç¬¦æ•°ç»„ä¸­ï¼Œcharreadä¸ºä¸€æ¬¡è¯»å–å­—ç¬¦æ•°
-            int flag = 0;
-            while ((tempchars = reader.read()) != -1) {
-                if ((tempchars >= 97 && tempchars <= 122) || (tempchars >= 65 && tempchars <= 90)) {
-                    flag = 0;
-                    tempBuf += (char) tempchars;
-                } else {
-                    if (flag == 0) {
-                        buf += tempBuf + " ";
-                        tempBuf = "";
-                    }
-                    flag = 1;
-                }
-            }
-            reader.close();
-            return buf;
-        } catch (Exception e1) {
-            System.out.println(e1);
-            return "";
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                    return buf;
-                } catch (IOException e1) {
-                    System.out.println(e1);
-                    return "";
-                }
-            }
+          reader.close();
+          return buf;
+        } catch (IOException e1) {
+          System.out.println(e1);
+          return "";
         }
+      }
     }
+  }
+  
+  /**¡£
+  * @param word1¡£
+  * @param word2¡£
+  * @param opt¡£
+  * @return¡£
+  */
+  public static String queryBridgeWords(String word1, String word2, int opt) {
+    //²éÑ¯ÇÅ½Ó´Ê,optÎª0·µ»Ø²»´æÔÚĞÅÏ¢£¬optÎª1Èç²»´æÔÚÔò·µ»Ønull
+    String bridgeWords = null;
+    if (!(m.containsKey(word1) || m.containsKey(word2))) {
+      if (opt == 0) {
+        bridgeWords = "No " + word1 + " and " + word2 + " in the graph!";
+      }
+      return bridgeWords;
+    }
+    if (!(m.containsKey(word1))) {
+      if (opt == 0) {
+        bridgeWords = "No " + word1 + " in the graph!";
+      }
+      return bridgeWords;
+    }
+    if (!(m.containsKey(word2))) {
+      if (opt == 0) {
+        bridgeWords = "No " + word2 + " in the graph!";
+      }
+      return bridgeWords;
+    }
+    String[] tempBridge = new String[numOfwords];
+    int src = (int)m.get(word1);
+    int dest = (int)m.get(word2);
+    int index = 0;
+    for (int j = 0;j < numOfwords;j++) {
+      if (graphOfWords[src][j] * graphOfWords[j][dest] > 0) {
+        for (Object s:m.keySet()) {
+          if ((int) m.get(s) == j) {
+            tempBridge[index++]  = (String)s;
+          }
+        }
+      }
+    }
+    if (index == 0) {
+      if (opt == 0) {
+        bridgeWords = "No bridge words from " + word1 + " to " + word2 + "!";
+      }
+      return bridgeWords;
+    }
+    bridgeWords = "";
+    int record = 0;
+    for (int i = 0;i < tempBridge.length;i++) {
+      if (tempBridge[i] ==  null) {
+        break;
+      } else {
+        record++;
+      }
+    }
+    for (int i = 0;i < record - 1;i++) {
+      bridgeWords += tempBridge[i] + ",";
+    }
+    bridgeWords += tempBridge[record - 1];
+    if (opt == 0) {
+      bridgeWords = "The bridge words from \"" + word1 + "\" to \"" + word2 + "\" are: " 
+        + bridgeWords + ".";
+    }
+    return bridgeWords;
+  }
+  
+  /**
+ * @param proc¡£
+ * @return¡£
+ */
+  public static int showDirectedGraph(String[] proc) { //Õ¹Ê¾ÓĞÏòÍ¼
+    Writer output = null;
+    try {
+      output = new OutputStreamWriter(new FileOutputStream(path + "out.dot"));
+      String dotout = "digraph dirGraph{\n";
+      for (int i = 0; i < proc.length; i++) {
+        dotout += "\t" + proc[i] + ";\n";
+      }
+
+      for (Object s : m.keySet()) { //Ğ´ÈëdotÎÄ¼ş
+        for (Object s1 : m.keySet()) {
+          if (graphOfWords[(int) m.get(s)][(int) m.get(s1)] != 0) {
+            dotout += "\t" + s + "->" + s1 + "[label=\"" 
+              + String.valueOf(graphOfWords[(int) m.get(s)][(int) m.get(s1)]) + "\"]" + ";\n";
+          }
+        }
+      }
+      dotout += "}";
+      output.write(dotout);
+      output.close();
+    } catch (Exception e) {
+      System.out.println(e);
+      return 0;
+    }
+    try {
+    } catch (Exception e) {
+      System.out.println(e);
+      return 0;
+    }
+    return 1;
+  }
+  
+  /**¡£
+ * @param inputText¡£
+ * @return¡£
+ */
+  public static String generateNewText(String inputText) { //¸ù¾İbridge wordÉú³ÉĞÂÎÄ±¾
+    String temp = "";
+    String result = "";
+    int flag = 0;
+    for (int i = 0 ;i < inputText.length();i++) {
+      int letter = (int)inputText.charAt(i);
+      if ((letter >= 97 && letter <= 122) || (letter >= 65 && letter <= 90)) {
+        flag = 0;
+        temp += (char) letter;
+      } else {
+        if (flag == 0) {
+          temp += " ";
+        }
+        flag = 1;
+      }
+    }
+    String[] tempArray = temp.split(" ");
+    java.util.Random random = new java.util.Random();
+    for (int i = 0;i < tempArray.length - 1;i++) {
+      String temp0 = queryBridgeWords(tempArray[i],tempArray[i + 1],1);
+      if (temp0 == null) {
+        result += tempArray[i] + " ";
+      } else { 
+        String[] temp1 = temp0.split(",");
+        int count = 0;
+        for (int m = 0;m < temp1.length;m++) {
+          if (temp1[m] == null) {
+            break;
+          }
+          count++;
+        }
+        int rand = random.nextInt(count);
+        result += tempArray[i] + " " + temp1[rand] + " ";
+      }
+    }
+    result += tempArray[tempArray.length - 1] + ".";
+    return result;
+  } 
+  
+  /**
+ * @param route¡£
+ * @param color¡£
+ */
+  public static void clearMarked(String route,String color) { 
+    Reader reader = null;
+    int tempchars;
+    String tempBuf = "";
+    String[] array = route.split("->");
+    try {
+      // Ò»´Î¶Á¶à¸ö×Ö·û
+      reader = new InputStreamReader(new FileInputStream("out.dot"));
+      while ((tempchars = reader.read()) != -1) {
+        tempBuf += (char) tempchars;
+      }
+    } catch (Exception e1) {
+      System.out.println(e1);
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (IOException e1) {
+          System.out.println(e1);
+        }
+      }
+    }
+    for (int i = 0;i < array.length - 1;i++) {
+      String pattern = array[i] + "->" + array[i + 1] + "\\[color=" + color + ",";
+      System.out.println(pattern);
+      Pattern p = Pattern.compile(pattern);
+      Matcher m = p.matcher(tempBuf);
+      System.out.println(m);
+      tempBuf = m.replaceFirst(array[i] + "->" + array[i + 1] + "\\[");
+    }
+    Writer output = null;
+    try {
+      output = new OutputStreamWriter(new FileOutputStream(path + "out.dot"));
+      output.write(tempBuf);
+      output.close();
+    } catch (Exception e) {
+      System.out.println(e);
+    }
+  }
+  
+  /**
+ * @param word1¡£
+ * @param word2¡£
+ * @param color¡£
+ * @return¡£
+ */
+  
+  public static String calcShortestPath(String word1, String word2,String color) {
+    String res = ShortestPath(word1,word2,color);
+    try {
+      Thread.currentThread();
+	Thread.sleep(100);
+    } catch (Exception e) {
+      System.out.println(e);
+    }
+    clearMarked(res,color);
+    return res;
+  }
+  /**¡£
+ * @param word¡£
+ * @param opt¡£
+ * @return¡£
+ */
+  
+  public static String[] calcShortestPath(String word,int opt) { 
+    String[] result = new String[numOfwords];
+    int index = 0;
+    Random random = new java.util.Random();
+    String[] stringChoice = {"red","yellow","green","blue"};
+    String[] color = new String[numOfwords];
+    try {
+      for (Object s:m.keySet()) {
+        if (!((String)s).equals(word)) {
+          int rand = random.nextInt(stringChoice.length);
+          String c = stringChoice[rand];
+          result[index] = ShortestPath(word,(String)s,c);
+          color[index++]  = c;
+        }
+      }
+      if (opt == 0) {
+        String[] cmd = {"cmd.exe", "/C", "start /b" + libPath + "dot " 
+            + path + "out.dot -T png -o " + path + "out.png"};
+        Runtime.getRuntime().exec(cmd);
+        //Thread.currentThread().sleep(100);
+      }
+
+    } catch (Exception e) {
+      System.out.println(e);
+    }
+    for (int i = 0;i < result.length;i++) {
+      clearMarked(result[i],color[i]);
+    }
+    return result;
+  }
+  /**
+ * @param word1¡£
+ * @param word2¡£
+ * @param color¡£
+ * @return¡£
+ */
+  private static String ShortestPath(String word1, String word2,String color) { //¼ÆËãÁ½¸öµ¥´ÊÖ®¼äµÄ×î¶ÌÂ·¾¶
+    int[] formerPath = new int[numOfwords];
+    int []latterPath = new int[numOfwords];
+    int indexSrc = (int)m.get(word1);
+    int indexDest = (int)m.get(word2);
+    int formerIndex = pathMatrix[indexSrc][indexDest];
+    int latterIndex = formerIndex;
+    int t1 = 0;
+    int t2 = 0;
+    if (formerIndex == -1) { //there is no path from word1 to word2
+      return "No path from " + word1 + " to " + word2;
+    }
+    while (true) { //»ñÈ¡´Ó word1->ÖĞ¼äµã ¾­ÀúµÄËùÓĞµãµ½Êı×éformerPath
+      if (graphOfWords[indexSrc][formerIndex] != 0) { //¿ÉÒ»²½µ½´ï
+        formerPath[t1++] = formerIndex;
+        break;
+      } else { //²»¿ÉÒ»²½µ½´ï£¬Ñ°ÕÒÉÏÒ»½Úµã
+        formerPath[t1++] = formerIndex;
+        formerIndex = pathMatrix[indexSrc][formerIndex];
+      }
+    }
+    while (true) { //»ñÈ¡´Ó ÖĞ¼äµã->word2 ¾­ÀúµÄËùÓĞµãµ½Êı×élatterPath
+      if (graphOfWords[latterIndex][indexDest] != 0) {
+        latterPath[t2] = latterIndex;
+        break;
+      } else { 
+        latterPath[t2++] = latterIndex;
+        latterIndex = pathMatrix[latterIndex][indexDest];
+      }
+    }
+    int[] routeArray = new int[t1 + t2];
+    for (int i = 0; i < routeArray.length;i++) {
+      if (i < t1) {
+        routeArray[i] = formerPath[t1 - 1 - i];
+      } else { 
+        routeArray[i] = latterPath[i - t1 + 1];
+      }
+    }
+    String result = word1 + "->";
+    for (int i = 0; i < routeArray.length;i++) {
+      for (Object s: m.keySet()) {
+        if ((int)m.get(s) == routeArray[i]) {
+          result += (String)s + "->";
+        }
+      }
+    }
+    result += word2;
+    System.out.println(result);
+    Reader reader = null;
+    int tempchars;
+    String tempBuf = "";
+    try {
+      // Ò»´Î¶Á¶à¸ö×Ö·û
+      reader = new InputStreamReader(new FileInputStream("out.dot"));
+      while ((tempchars = reader.read()) != -1) {
+        tempBuf += (char) tempchars;
+      }
+    } catch (Exception e1) {
+      System.out.println(e1);
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (IOException e1) {
+          System.out.println(e1);
+        }
+      }
+    }
+    String[] tempArry = result.split("->");
+    for (int i = 0;i < tempArry.length - 1;i++) {
+      String pattern = tempArry[i] + "->" + tempArry[i + 1] + "\\[";
+      System.out.println(pattern);
+      Pattern p = Pattern.compile(pattern);
+      Matcher m = p.matcher(tempBuf);
+      System.out.println(m);
+      tempBuf = m.replaceFirst(tempArry[i] + "->" + tempArry[i + 1] + "[color=" + color + ",");
+    }
+    Writer output = null;
+    try {
+      output = new OutputStreamWriter(new FileOutputStream(path + "out.dot"));
+      output.write(tempBuf);
+      output.close();
+    } catch (Exception e) {
+      System.out.println(e);
+    }
+    System.out.println("the shortest length from " + word1 + " to " + word2  + " is :" 
+        + minRouteMatrix[indexSrc][indexDest]);
     
-    public static String queryBridgeWords(String word1,String word2,int opt){//æŸ¥è¯¢æ¡¥æ¥è¯,optä¸º0è¿”å›ä¸å­˜åœ¨ä¿¡æ¯ï¼Œoptä¸º1å¦‚ä¸å­˜åœ¨åˆ™è¿”å›null
-        String bridgeWords = null;
-        if(!(m.containsKey(word1) || m.containsKey(word2))){
-            if(opt == 0){
-                bridgeWords = "No " + word1 + " and " + word2 + " in the graph!";
-            }
-            return bridgeWords;
-        }
-        if(!(m.containsKey(word1) )){
-            if(opt == 0){
-                bridgeWords = "No "+ word1 + " in the graph!";
-            }
-            return bridgeWords;
-        }
-        if(!(m.containsKey(word2))){
-            if(opt == 0){
-                bridgeWords = "No "+ word2 + " in the graph!";
-            }
-            return bridgeWords;
-        }
-        String[] tempBridge = new String[numOfwords];
-        int src = (int)m.get(word1);
-        int dest = (int)m.get(word2);
-        int index = 0;
-        for(int j = 0;j < numOfwords;j++) {
-            if(graphOfWords[src][j] * graphOfWords[j][dest] > 0){
-                for(Object s:m.keySet()) {
-                    if ((int) m.get(s) == j) {
-                       tempBridge[index++]  = (String)s;
-                    }
-                }
-            }
-        }
-        if(index == 0){
-            if(opt == 0){
-                bridgeWords = "No bridge words from "+word1+" to "+word2+"!";
-            }
-            return bridgeWords;
-        }
-        bridgeWords = "";
-        int record = 0;
-        for(int i = 0;i < tempBridge.length;i++){
-            if(tempBridge[i] ==  null) break;
-            else record++;
-        }
-        for(int i = 0;i < record - 1;i++){
-            bridgeWords += tempBridge[i] + ",";
-        }
-        bridgeWords += tempBridge[record - 1];
-        if(opt == 0) {
-            bridgeWords = "The bridge words from \"" + word1 + "\" to \"" + word2 + "\" are: " + bridgeWords + ".";
-        }
-        return bridgeWords;
-    }
-    	
-    public static int showDirectedGraph(String[] proc) {//å±•ç¤ºæœ‰å‘å›¾
-        Writer output = null;
-        try {
-            output = new OutputStreamWriter(new FileOutputStream(path + "out.dot"));
-            String dotout = "digraph dirGraph{\n";
-            for (int i = 0; i < proc.length; i++) {
-                dotout += "\t" + proc[i] + ";\n";
-            }
+    return result;
+  }
 
-            for (Object s : m.keySet()) {//å†™å…¥dotæ–‡ä»¶
-                for (Object s1 : m.keySet()) {
-                    if (graphOfWords[(int) m.get(s)][(int) m.get(s1)] != 0) {
-                        dotout += "\t" + s + "->" + s1 + "[label=\"" + String.valueOf(graphOfWords[(int) m.get(s)][(int) m.get(s1)]) + "\"]" + ";\n";
-                    }
-                }
-            }
-            dotout += "}";
-            output.write(dotout);
-            output.close();
-        } catch (Exception e) {
-            System.out.println(e);
-            return 0;
+  /**
+ * @return¡£
+ */
+  
+  public static String randomWalk() { //Ëæ»úÓÎ×ß
+    int[] resultIndex = new int[bufSize];
+    String result = new String();
+    java.util.Random random = new java.util.Random();
+    int rand = random.nextInt(numOfwords);
+    int viaIndex = 0;
+    int[][] tempMatrix = new int[numOfwords][numOfwords];
+    resultIndex[viaIndex++] = rand;
+    while (true) {
+      int[] temp = new int[bufSize];//¼ÇÂ¼Ò»¸öµãµÄËùÓĞ³ö±ßÖ¸ÏòµÄµã£¬ÒÔ±ãËæ»úÑ¡È¡
+      int index = 0;
+      for (int i = 0; i < numOfwords;i++) { //É¨Ãèµ±Ç°½ÚµãµÄ³ö±ß
+        if (graphOfWords[rand][i] != 0) {
+          temp[index++] = i;
         }
-        try {
-            String[] cmd = {"cmd.exe", "/C", "start " + libPath + "dot " + path + "out.dot -T png -o " + path + "out.png"};
-            Process pro = Runtime.getRuntime().exec(cmd);
-            //Thread.currentThread().sleep(100);
-        } catch (Exception e) {
-            System.out.println(e);
-            return 0;
-        }
-        return 1;
+      }
+      if (index == 0) { //Èô³ö¶ÈÎª0£¬ÖÕÖ¹Ëæ»úÓÎ¶¯
+        break;
+      }
+      rand = temp[random.nextInt(index)];
+      resultIndex[viaIndex++] = rand;//Ëæ»úÑ¡È¡Ò»¸ö³ö±ß
+      if (tempMatrix[resultIndex[viaIndex - 2]][resultIndex[viaIndex - 1]] == 1) { //±ßÔÚÖ®Ç°ÒÑ¾­³öÏÖ¹ı£¬Ò²Í£Ö¹ÓÎ×ß
+        break;
+      }
+      tempMatrix[resultIndex[viaIndex - 2]][resultIndex[viaIndex - 1]] = 1;
     }
-    
-    public static String generateNewText(String inputText){//æ ¹æ®bridge wordç”Ÿæˆæ–°æ–‡æœ¬
-        String temp = "";
-        String result = "";
-        int flag = 0;
-        for(int i = 0 ;i < inputText.length();i++){
-            int letter = (int)inputText.charAt(i);
-            if ((letter >= 97 && letter <= 122) || (letter >= 65 && letter <= 90)) {
-                flag = 0;
-                temp += (char) letter;
-            } else {
-                if (flag == 0) {
-                    temp += " ";
-                }
-                flag = 1;
-            }
+    for (int i = 0 ;i < viaIndex;i++) { //½«Ë÷Òı×ª»¯Îª×Ö·û´®
+      for (Object s : m.keySet()) {
+        if ((int)m.get(s) == resultIndex[i]) {
+          result += (String)s;
         }
-        String[] tempArray = temp.split(" ");
-        java.util.Random random = new java.util.Random();
-        for(int i = 0;i < tempArray.length - 1;i++){
-            String temp0 = queryBridgeWords(tempArray[i],tempArray[i + 1],1);
-            if(temp0 == null){
-                result += tempArray[i] + " ";
-            }
-            else {
-                String[] temp1 = temp0.split(",");
-                int count = 0;
-                for(int m = 0;m < temp1.length;m++){
-                    if (temp1[m] == null) break;
-                    count++;
-                }
-                int rand = random.nextInt(count);
-                result += tempArray[i] + " "+temp1[rand] + " ";
-            }
-        }
-        result += tempArray[tempArray.length - 1] + ".";
-        return result;
-    } 
-    
-    public static void clearMarked(String route,String color){
-        Reader reader = null;
-        int tempchars;
-        String tempBuf = "";
-        String[] array = route.split("->");
-        try {
-            // ä¸€æ¬¡è¯»å¤šä¸ªå­—ç¬¦
-            reader = new InputStreamReader(new FileInputStream("out.dot"));
-            // è¯»å…¥å¤šä¸ªå­—ç¬¦åˆ°å­—ç¬¦æ•°ç»„ä¸­ï¼Œcharreadä¸ºä¸€æ¬¡è¯»å–å­—ç¬¦æ•°
-            int flag = 0;
-            while ((tempchars = reader.read()) != -1) {
-                tempBuf += (char) tempchars;
-            }
-        } catch (Exception e1) {
-            System.out.println(e1);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e1) {
-                    System.out.println(e1);
-                }
-            }
-        }
-        for(int i = 0;i <array.length - 1;i++){
-            String pattern = array[i] + "->" + array[i + 1]+"\\[color="+ color + ",";
-            System.out.println(pattern);
-            Pattern p = Pattern.compile(pattern);
-            Matcher m = p.matcher(tempBuf);
-            System.out.println(m);
-            tempBuf = m.replaceFirst(array[i]+"->" + array[i+1] + "\\[");
-        }
-        Writer output = null;
-        try {
-            output = new OutputStreamWriter(new FileOutputStream(path + "out.dot"));
-            output.write(tempBuf);
-            output.close();
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+      }
+      if (i != viaIndex - 1) {
+        result += "->";
+      }
     }
-    
-    public static String calcShortestPath(String word1, String word2,String color) {
-        String res = ShortestPath(word1,word2,color);
-        try {
-            String[] cmd = {"cmd.exe", "/C", "start " + libPath + "dot " + path + "out.dot -T png -o " + path + "out.png"};
-            Process pro = Runtime.getRuntime().exec(cmd);
-            Thread.currentThread().sleep(100);
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        clearMarked(res,color);
-        return res;
-    }
-    
-    private static String ShortestPath(String word1, String word2,String color){//è®¡ç®—ä¸¤ä¸ªå•è¯ä¹‹é—´çš„æœ€çŸ­è·¯å¾„
-        int[] formerPath = new int[numOfwords];
-        int []latterPath = new int[numOfwords];
-        int indexSrc = (int)m.get(word1);
-        int indexDest = (int)m.get(word2);
-        int formerIndex = pathMatrix[indexSrc][indexDest];
-        int latterIndex = formerIndex;
-        int t1 = 0;
-        int t2 = 0;
-        if(formerIndex == -1){//there is no path from word1 to word2
-            return "No path from "+word1 + " to " + word2;
-        }
-        while(true){//è·å–ä» word1->ä¸­é—´ç‚¹ ç»å†çš„æ‰€æœ‰ç‚¹åˆ°æ•°ç»„formerPath
-            if(graphOfWords[indexSrc][formerIndex] != 0){//å¯ä¸€æ­¥åˆ°è¾¾
-                formerPath[t1++] = formerIndex;
-                break;
-            }
-            else{//ä¸å¯ä¸€æ­¥åˆ°è¾¾ï¼Œå¯»æ‰¾ä¸Šä¸€èŠ‚ç‚¹
-                formerPath[t1++] = formerIndex;
-                formerIndex = pathMatrix[indexSrc][formerIndex];
-            }
-        }
-        while(true){//è·å–ä» ä¸­é—´ç‚¹->word2 ç»å†çš„æ‰€æœ‰ç‚¹åˆ°æ•°ç»„latterPath
-            if(graphOfWords[latterIndex][indexDest] != 0){
-            	latterPath[t2] = latterIndex;
-                break;
-            }
-            else{
-                latterPath[t2++] = latterIndex;
-                latterIndex = pathMatrix[latterIndex][indexDest];
-            }
-        }
-        int[] routeArray = new int[t1 + t2];
-        for(int i = 0; i < routeArray.length;i++){
-            if(i < t1){
-                routeArray[i] = formerPath[t1 - 1 - i];
-            }
-            else{
-                routeArray[i] = latterPath[i - t1 + 1];
-            }
-        }
-        String result = word1 + "->";
-        for(int i = 0; i < routeArray.length;i++){
-            for (Object s: m.keySet()){
-                if((int)m.get(s) == routeArray[i]){
-                    result += (String)s + "->";
-                }
-            }
-        }
-        result += word2;
-        System.out.println(result);
-        Reader reader = null;
-        int tempchars;
-        String tempBuf = "";
-        try {
-            // ä¸€æ¬¡è¯»å¤šä¸ªå­—ç¬¦
-            reader = new InputStreamReader(new FileInputStream("out.dot"));
-            // è¯»å…¥å¤šä¸ªå­—ç¬¦åˆ°å­—ç¬¦æ•°ç»„ä¸­ï¼Œcharreadä¸ºä¸€æ¬¡è¯»å–å­—ç¬¦æ•°
-            int flag = 0;
-            while ((tempchars = reader.read()) != -1) {
-                tempBuf += (char) tempchars;
-            }
-        } catch (Exception e1) {
-            System.out.println(e1);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e1) {
-                    System.out.println(e1);
-                }
-            }
-        }
-        String[] tempArry = result.split("->");
-        for(int i = 0;i < tempArry.length - 1;i++){
-            String pattern = tempArry[i] + "->" + tempArry[i + 1]+"\\[";
-            System.out.println(pattern);
-            Pattern p = Pattern.compile(pattern);
-            Matcher m = p.matcher(tempBuf);
-            System.out.println(m);
-            tempBuf = m.replaceFirst(tempArry[i]+"->" + tempArry[i+1] + "[color="+color+",");
-        }
-        Writer output = null;
-        try {
-            output = new OutputStreamWriter(new FileOutputStream(path + "out.dot"));
-            output.write(tempBuf);
-            output.close();
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        System.out.println( "the shortest length from "+word1+" to " + word2  +" is :" + minRouteMatrix[indexSrc][indexDest]);
-        
-        return result;
-    }
-    public static String[] calcShortestPath(String word,int opt) {
-        String[] result = new String[numOfwords];
-        int index = 0;
-        Random random = new java.util.Random();
-        String[] stringChoice = {"red","yellow","green","blue"};
-        String[] color = new String[numOfwords];
-	    try {
-	        for(Object s:m.keySet()){
-	            if ((String)s != word){
-	                int rand = random.nextInt(stringChoice.length);
-	                String c = stringChoice[rand];
-	                result[index] = ShortestPath(word,(String)s,c);
-	                color[index++]  = c;
-	            }
-	        }
-	        if (opt == 0) {
-	            String[] cmd = {"cmd.exe", "/C", "start /b" + libPath + "dot " + path + "out.dot -T png -o " + path + "out.png"};
-	            Runtime.getRuntime().exec(cmd);
-	            //Thread.currentThread().sleep(100);
-	        }
+    return result;
+  }
 
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        for(int i = 0;i<  result.length;i++){
-            clearMarked(result[i],color[i]);
-        }
-        return result;
+  /**
+ * @param s¡£
+ */
+  public static void init(String[] s) {
+    int seq = 0;
+    for (int i = 0; i < s.length; i++) { //Ã¿¸ö×Ö·û´®ºÅ
+      if (!m.containsKey(s[i])) {
+        m.put(s[i], seq++);
+      }
     }
-    public static String randomWalk(){//éšæœºæ¸¸èµ°
-        int[] resultIndex = new int[bufSize];
-        String result = new String();
-        java.util.Random random = new java.util.Random();
-        int rand = random.nextInt(numOfwords);
-        int viaIndex = 0;
-        int[][] tempMatrix = new int[numOfwords][numOfwords];
-        resultIndex[viaIndex++] = rand;
-        while (true){
-            int[] temp = new int[bufSize];//è®°å½•ä¸€ä¸ªç‚¹çš„æ‰€æœ‰å‡ºè¾¹æŒ‡å‘çš„ç‚¹ï¼Œä»¥ä¾¿éšæœºé€‰å–
-            int index = 0;
-            for(int i = 0; i < numOfwords;i++){//æ‰«æå½“å‰èŠ‚ç‚¹çš„å‡ºè¾¹
-                if(graphOfWords[rand][i] != 0){
-                    temp[index++]= i;
-                }
-            }
-            if(index == 0){//è‹¥å‡ºåº¦ä¸º0ï¼Œç»ˆæ­¢éšæœºæ¸¸åŠ¨
-                break;
-            }
-            rand = temp[random.nextInt(index)];
-            resultIndex[viaIndex++] = rand;//éšæœºé€‰å–ä¸€ä¸ªå‡ºè¾¹
-            if(tempMatrix[resultIndex[viaIndex - 2]][resultIndex[viaIndex - 1]] == 1){//è¾¹åœ¨ä¹‹å‰å·²ç»å‡ºç°è¿‡ï¼Œä¹Ÿåœæ­¢æ¸¸èµ°
-               break;
-            }
-            tempMatrix[resultIndex[viaIndex- 2]][resultIndex[viaIndex - 1]] = 1;
-        }
-        for(int i = 0 ;i < viaIndex;i++){//å°†ç´¢å¼•è½¬åŒ–ä¸ºå­—ç¬¦ä¸²
-           for(Object s : m.keySet()){
-               if((int)m.get(s) == resultIndex[i]){
-                   result += (String)s;
-               }
-           }
-           if(i != viaIndex - 1){
-                   result += "->";
-           }
-        }
-        return result;
+    for (int i = 0; i < s.length - 1; i++) { //Í³¼ÆÈ¨Öµ
+      graphOfWords[(int) m.get(s[i])][(int) m.get(s[i + 1])] += 1;
     }
+    numOfwords = seq;
+    for (int i = 0; i < s.length;i++) {
+      for (int j = 0;j < s.length;j++) {
+        pathMatrix[i][j] = -1;
+      }
+    }
+    floyd();//Ê¹ÓÃFloydËã·¨ÔÚ³ÌĞò¶ÁÈëÎÄ±¾ºó¼ÆËã³ö×î¶ÌÂ·¾¶£¬ÒÔ±ãÖ®ºóµÄ¹¦ÄÜÊ¹ÓÃ
+  }
+  
+  /**
+ * @param args¡£
+ */
+  public static void main(String[] args) {
+    JFrame frame = new JFrame("lab1"); //GUIµÄÖ÷½çÃæ
+    frame.setSize(750, 500);
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    JPanel panel = new JPanel();
+    frame.add(panel);
+    placeComponents(panel);//µ÷ÓÃ×é¼ş²¼¾Öº¯Êı
+    frame.setVisible(true);
+    //queryBridgeWords("natio","any",0);
+    //System.out.println(generateNewText("final place those who gave"));
+    //System.out.println(calcShortestPath("lives"));
+    //System.out.println(randomWalk());
+  }
 
-    public static void init(String[] s){
-        int seq = 0;
-        for (int i = 0; i < s.length; i++) {//æ¯ä¸ªå­—ç¬¦ä¸²å·
-            if (!m.containsKey(s[i])) {
-                m.put(s[i], seq++);
-            }
-        }
-        for (int i = 0; i < s.length - 1; i++) {//ç»Ÿè®¡æƒå€¼
-            graphOfWords[(int) m.get(s[i])][(int) m.get(s[i + 1])] += 1;
-        }
-        numOfwords = seq;
-        for(int i = 0; i<s.length;i++) {
-        	for(int j = 0;j < s.length;j++) {
-        		pathMatrix[i][j] = -1;
-        	}
-        }
-        Floyd();//ä½¿ç”¨Floydç®—æ³•åœ¨ç¨‹åºè¯»å…¥æ–‡æœ¬åè®¡ç®—å‡ºæœ€çŸ­è·¯å¾„ï¼Œä»¥ä¾¿ä¹‹åçš„åŠŸèƒ½ä½¿ç”¨
-    }
-    public static void main(String[] args) {
-    	JFrame frame = new JFrame("lab1");					//GUIçš„ä¸»ç•Œé¢
-    	frame.setSize(750, 500);
-    	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    	
-    	JPanel panel = new JPanel();
-    	frame.add(panel);
-    	
-    	placeComponents(panel);									//è°ƒç”¨ç»„ä»¶å¸ƒå±€å‡½æ•°
-    	
-    	frame.setVisible(true);
-    	
-        //queryBridgeWords("natio","any",0);
-        //System.out.println(generateNewText("final place those who gave"));
-        //System.out.println(calcShortestPath("lives"));
-        //System.out.println(randomWalk());
-    }
+  public static void placeComponents(JPanel panel)
+  {
+  	panel.setLayout(null);									//Ê¹ÓÃ¾ø¶Ô²¼¾Ö
+  	JButton openFileButton = new JButton("Open File");
+  	openFileButton.setBounds(320, 200, 120, 25);			//Ê×ÏÈÉèÖÃ´ò¿ªÎÄ¼ş°´Å¥
+  	panel.add(openFileButton);
+  	
+  	openFileButton.addActionListener(new ActionListener() 	//´ò¿ªÎÄ¼ş°´Å¥ÊÂ¼ş¼àÌıÆ÷
+  	{
+  		public void actionPerformed(ActionEvent e)
+  		{
+  			JFileChooser fileChoose = new JFileChooser();	//Ñ¡ÔñÎÄ¼ş
+  			fileChoose.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+  			fileChoose.showDialog(new JLabel(), "Ñ¡Ôñ");
+  			File file = fileChoose.getSelectedFile();
+  			if (file.isDirectory())
+  			{
+  				System.out.println("ÎÄ¼ş¼Ğ" + file.getAbsolutePath());
+  			}
+  			else if (file.isFile())
+  			{
+  				System.out.println("ÎÄ¼ş:"+file.getAbsolutePath());
+  			}
+  			System.out.println(fileChoose.getSelectedFile().getName());
 
-    public static void placeComponents(JPanel panel)
-    {
-    	panel.setLayout(null);									//ä½¿ç”¨ç»å¯¹å¸ƒå±€
-    	JButton openFileButton = new JButton("Open File");
-    	openFileButton.setBounds(320, 200, 120, 25);			//é¦–å…ˆè®¾ç½®æ‰“å¼€æ–‡ä»¶æŒ‰é’®
-    	panel.add(openFileButton);
-    	
-    	openFileButton.addActionListener(new ActionListener() 	//æ‰“å¼€æ–‡ä»¶æŒ‰é’®äº‹ä»¶ç›‘å¬å™¨
-    	{
-    		public void actionPerformed(ActionEvent e)
-    		{
-    			JFileChooser fileChoose = new JFileChooser();	//é€‰æ‹©æ–‡ä»¶
-    			fileChoose.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-    			fileChoose.showDialog(new JLabel(), "é€‰æ‹©");
-    			File file = fileChoose.getSelectedFile();
-    			if (file.isDirectory())
-    			{
-    				System.out.println("æ–‡ä»¶å¤¹" + file.getAbsolutePath());
-    			}
-    			else if (file.isFile())
-    			{
-    				System.out.println("æ–‡ä»¶:"+file.getAbsolutePath());
-    			}
-    			System.out.println(fileChoose.getSelectedFile().getName());
+  			String buf = ReadFile(fileChoose.getSelectedFile().getName());	//½«ÎÄ¼şÃû´«Èëº¯Êı
+  			
+  	    String[] procBuf = buf.split(" ");
+  	    init(procBuf);
+  	    showDirectedGraph(procBuf);	
+  	    
+  	    Choose_FileFunction();							//´ò¿ªÎÄ¼şºó£¬¶ÔÎÄ¼şÑ¡Ôñ¹¦ÄÜ²Ù×÷½çÃæ
+  			
+  		}
+  	});
+  }
 
-    			String buf = ReadFile(fileChoose.getSelectedFile().getName());	//å°†æ–‡ä»¶åä¼ å…¥å‡½æ•°
-    			
-    	        String[] procBuf = buf.split(" ");
-    	        init(procBuf);
-    	        showDirectedGraph(procBuf);	
-    	        
-    	        Choose_FileFunction();							//æ‰“å¼€æ–‡ä»¶åï¼Œå¯¹æ–‡ä»¶é€‰æ‹©åŠŸèƒ½æ“ä½œç•Œé¢
-    			
-    		}
-    	});
-    }
+  public static void Choose_FileFunction() 
+  {
+  	JFrame new_frame = new JFrame("ÎÄ¼ş²Ù×÷¹¦ÄÜÑ¡Ôñ");
+  	new_frame.setSize(650, 400);
+  	new_frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+  	new_frame.setVisible(true);
+  	
+  	new_frame.addWindowListener(new WindowAdapter() 		//¹Ø±Õ·Ö½çÃæºó£¬²»»á¹Ø±Õ³ÌĞò
+  	{
+  		public void windowClosing(WindowEvent e)
+  		{
+  			new_frame.dispose();
+  		}
+  	});
+  	
+  	JPanel choose_function_panel = new JPanel();
+  	new_frame.add(choose_function_panel);
+  	
+  	new_placeComponents(choose_function_panel);
+  	
+  	new_frame.setVisible(true);
+  }
 
-    public static void Choose_FileFunction() 
-    {
-    	JFrame new_frame = new JFrame("æ–‡ä»¶æ“ä½œåŠŸèƒ½é€‰æ‹©");
-    	new_frame.setSize(650, 400);
-    	new_frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-    	new_frame.setVisible(true);
-    	
-    	new_frame.addWindowListener(new WindowAdapter() 		//å…³é—­åˆ†ç•Œé¢åï¼Œä¸ä¼šå…³é—­ç¨‹åº
-    	{
-    		public void windowClosing(WindowEvent e)
-    		{
-    			new_frame.dispose();
-    		}
-    	});
-    	
-    	JPanel choose_function_panel = new JPanel();
-    	new_frame.add(choose_function_panel);
-    	
-    	new_placeComponents(choose_function_panel);
-    	
-    	new_frame.setVisible(true);
-    }
-
-    public static void new_placeComponents(JPanel choose_function_panel)
-    {
-    	choose_function_panel.setLayout(null);
-    	
-    	JButton showGraph_Button = new JButton("å±•ç¤ºæœ‰å‘å›¾");	//å±•ç¤ºæœ‰å‘å›¾åŠŸèƒ½æŒ‰é’®
-    	showGraph_Button.setBounds(220, 35, 200, 35);
-    	choose_function_panel.add(showGraph_Button);
-    	
-    	showGraph_Button.addActionListener(new ActionListener() 
-    	{
-    		public void actionPerformed(ActionEvent e)
-    		{			
-				JFrame picture_frame = new JFrame("å›¾ç‰‡æµè§ˆ");
+  public static void new_placeComponents(JPanel choose_function_panel)
+  {
+  	choose_function_panel.setLayout(null);
+  	
+  	JButton showGraph_Button = new JButton("Õ¹Ê¾ÓĞÏòÍ¼");	//Õ¹Ê¾ÓĞÏòÍ¼¹¦ÄÜ°´Å¥
+  	showGraph_Button.setBounds(220, 35, 200, 35);
+  	choose_function_panel.add(showGraph_Button);
+  	
+  	showGraph_Button.addActionListener(new ActionListener() 
+  	{
+  		public void actionPerformed(ActionEvent e)
+  		{			
+				JFrame picture_frame = new JFrame("Í¼Æ¬ä¯ÀÀ");
 				picture_frame.setSize(2000,1000);
 				picture_frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 				picture_frame.setVisible(true);
 				
-				JPanel picture_Pane = new JPanel();
+				JPanel picturePane = new JPanel();
 				
 				JLabel label = new JLabel();
 				label.setSize(500,500);
 				
-				picture_Pane.add(label);
+				picturePane.add(label);
 				label.setIcon(new ImageIcon(".\\out.png"));
 				
-				JScrollPane scrollPane = new JScrollPane(picture_Pane);
+				JScrollPane scrollPane = new JScrollPane(picturePane);
 				scrollPane.validate();
 				scrollPane.setPreferredSize(new Dimension(900,650));
 				
@@ -576,142 +620,142 @@ public class GraphGenerate {
 						picture_frame.dispose();
 					}
 				});	
-    		}
-    	});
-    	
-    	JButton queryBridgeWords_Button = new JButton("æŸ¥è¯¢æ¡¥æ¥è¯");
-    	queryBridgeWords_Button.setBounds(220, 90, 200, 35);
-    	choose_function_panel.add(queryBridgeWords_Button);
-    	
-    	queryBridgeWords_Button.addActionListener(new ActionListener() 
-    	{
-    		public void actionPerformed(ActionEvent e)
-    		{
-    			JFrame queryBridgeWords_frame = new JFrame("æŸ¥è¯¢æ¡¥æ¥è¯");
-    			queryBridgeWords_frame.setSize(600,400);
-    			queryBridgeWords_frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-    			queryBridgeWords_frame.setVisible(true);
-    			
-    			JPanel queryBridgeWords_Panel = new JPanel();
-    			queryBridgeWords_frame.add(queryBridgeWords_Panel);
-    			
-    			queryBridgeWords_Panel.setLayout(null);
-    			
-    			JLabel FirstWord = new JLabel("ç¬¬ä¸€ä¸ªè‹±æ–‡å•è¯ï¼š");
-    			FirstWord.setBounds(150, 20, 120, 40);
-    			queryBridgeWords_Panel.add(FirstWord);
-    			
-    			JTextField FirstText = new JTextField();
-    			FirstText.setBounds(260, 28, 165, 25);
-    			queryBridgeWords_Panel.add(FirstText);
-    			
-    			JLabel SecondWord = new JLabel("ç¬¬äºŒä¸ªè‹±æ–‡å•è¯ï¼š");
-    			SecondWord.setBounds(150, 70, 120, 40);
-    			queryBridgeWords_Panel.add(SecondWord);
-    			
-    			JTextField SecondText = new JTextField();
-    			SecondText.setBounds(260, 78, 165, 25);
-    			queryBridgeWords_Panel.add(SecondText);
-    			
-    			JButton query_Button = new JButton("æŸ¥è¯¢");
-    			query_Button.setBounds(250, 130, 80, 25);
-    			queryBridgeWords_Panel.add(query_Button);
-    			
-    			JLabel ResultWord = new JLabel("æŸ¥è¯¢ç»“æœï¼š");
-    			ResultWord.setBounds(100, 160, 120, 40);
-    			queryBridgeWords_Panel.add(ResultWord);
-    			
-    			JTextArea result = new JTextArea();
-    			result.setBounds(180, 165, 300, 50);
-    			result.setLineWrap(true);
-    			queryBridgeWords_Panel.add(result);
-    			
-    			query_Button.addActionListener(new ActionListener() 
-    			{
+  		}
+  	});
+  	
+  	JButton queryBridgeWords_Button = new JButton("²éÑ¯ÇÅ½Ó´Ê");
+  	queryBridgeWords_Button.setBounds(220, 90, 200, 35);
+  	choose_function_panel.add(queryBridgeWords_Button);
+  	
+  	queryBridgeWords_Button.addActionListener(new ActionListener() 
+  	{
+  		public void actionPerformed(ActionEvent e)
+  		{
+  			JFrame queryBridgeWords_frame = new JFrame("²éÑ¯ÇÅ½Ó´Ê");
+  			queryBridgeWords_frame.setSize(600,400);
+  			queryBridgeWords_frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+  			queryBridgeWords_frame.setVisible(true);
+  			
+  			JPanel queryBridgeWords_Panel = new JPanel();
+  			queryBridgeWords_frame.add(queryBridgeWords_Panel);
+  			
+  			queryBridgeWords_Panel.setLayout(null);
+  			
+  			JLabel FirstWord = new JLabel("µÚÒ»¸öÓ¢ÎÄµ¥´Ê£º");
+  			FirstWord.setBounds(150, 20, 120, 40);
+  			queryBridgeWords_Panel.add(FirstWord);
+  			
+  			JTextField FirstText = new JTextField();
+  			FirstText.setBounds(260, 28, 165, 25);
+  			queryBridgeWords_Panel.add(FirstText);
+  			
+  			JLabel SecondWord = new JLabel("µÚ¶ş¸öÓ¢ÎÄµ¥´Ê£º");
+  			SecondWord.setBounds(150, 70, 120, 40);
+  			queryBridgeWords_Panel.add(SecondWord);
+  			
+  			JTextField SecondText = new JTextField();
+  			SecondText.setBounds(260, 78, 165, 25);
+  			queryBridgeWords_Panel.add(SecondText);
+  			
+  			JButton query_Button = new JButton("²éÑ¯");
+  			query_Button.setBounds(250, 130, 80, 25);
+  			queryBridgeWords_Panel.add(query_Button);
+  			
+  			JLabel ResultWord = new JLabel("²éÑ¯½á¹û£º");
+  			ResultWord.setBounds(100, 160, 120, 40);
+  			queryBridgeWords_Panel.add(ResultWord);
+  			
+  			JTextArea result = new JTextArea();
+  			result.setBounds(180, 165, 300, 50);
+  			result.setLineWrap(true);
+  			queryBridgeWords_Panel.add(result);
+  			
+  			query_Button.addActionListener(new ActionListener() 
+  			{
 					public void actionPerformed(ActionEvent e)
 					{
 						String query_result = queryBridgeWords(FirstText.getText(),SecondText.getText(),0);
 						System.out.println(queryBridgeWords(FirstText.getText(),SecondText.getText(),0));
 						result.setText(query_result);
 					}
-    			});
-    			
-    			queryBridgeWords_frame.addWindowListener(new WindowAdapter() 
+  			});
+  			
+  			queryBridgeWords_frame.addWindowListener(new WindowAdapter() 
 				{
 					public void windowClosing(WindowEvent e)
 					{
 						queryBridgeWords_frame.dispose();
 					}
 				});	
-    		}
-    	});
-    	
-    	JButton generateNewText_Button = new JButton("ç”Ÿæˆæ–°æ–‡æœ¬");
-    	generateNewText_Button.setBounds(220, 145, 200, 35);
-    	choose_function_panel.add(generateNewText_Button);
-    	
-    	generateNewText_Button.addActionListener(new ActionListener() 
-    	{
-    		public void actionPerformed(ActionEvent e)
-    		{
-    			JFrame generateNewText_frame = new JFrame("ç”Ÿæˆæ–°æ–‡æœ¬");
-    			generateNewText_frame.setSize(600,400);
-    			generateNewText_frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-    			generateNewText_frame.setVisible(true);
-    			
-    			JPanel generateNewText_Panel = new JPanel();
-    			generateNewText_frame.add(generateNewText_Panel);
-    			
-    			generateNewText_Panel.setLayout(null);
-    			
-    			JLabel OldText = new JLabel("è¯·è¾“å…¥æ–‡æœ¬ï¼š");
-    			OldText.setBounds(100, 53, 120, 40);
-    			generateNewText_Panel.add(OldText);
-    			
-    			JTextArea Old_Text = new JTextArea(5,15);
-    			Old_Text.setBounds(200, 48, 300, 60);
-    			Old_Text.setLineWrap(true);
-    			generateNewText_Panel.add(Old_Text);
-    			
-    			JButton generate_Button = new JButton("ç”Ÿæˆ");
-    			generate_Button.setBounds(260, 140, 80, 25);
-    			generateNewText_Panel.add(generate_Button);
-    			
-    			JLabel NewText = new JLabel("ç”Ÿæˆçš„æ–°æ–‡æœ¬ï¼š");
-    			NewText.setBounds(100, 200, 120, 40);
-    			generateNewText_Panel.add(NewText);
-    			
-    			JTextArea New_Text = new JTextArea(5,15);
-    			New_Text.setBounds(200, 188, 300, 60);
-    			New_Text.setLineWrap(true);
-    			generateNewText_Panel.add(New_Text);
-    			
-    			generate_Button.addActionListener(new ActionListener() {
-    				public void actionPerformed(ActionEvent e)
-    				{
-    					New_Text.setText(generateNewText(Old_Text.getText()));
-    				}
-    			});
-    			
-    			generateNewText_frame.addWindowListener(new WindowAdapter() 
+  		}
+  	});
+  	
+  	JButton generateNewText_Button = new JButton("Éú³ÉĞÂÎÄ±¾");
+  	generateNewText_Button.setBounds(220, 145, 200, 35);
+  	choose_function_panel.add(generateNewText_Button);
+  	
+  	generateNewText_Button.addActionListener(new ActionListener() 
+  	{
+  		public void actionPerformed(ActionEvent e)
+  		{
+  			JFrame generateNewText_frame = new JFrame("Éú³ÉĞÂÎÄ±¾");
+  			generateNewText_frame.setSize(600,400);
+  			generateNewText_frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+  			generateNewText_frame.setVisible(true);
+  			
+  			JPanel generateNewText_Panel = new JPanel();
+  			generateNewText_frame.add(generateNewText_Panel);
+  			
+  			generateNewText_Panel.setLayout(null);
+  			
+  			JLabel OldText = new JLabel("ÇëÊäÈëÎÄ±¾£º");
+  			OldText.setBounds(100, 53, 120, 40);
+  			generateNewText_Panel.add(OldText);
+  			
+  			JTextArea Old_Text = new JTextArea(5,15);
+  			Old_Text.setBounds(200, 48, 300, 60);
+  			Old_Text.setLineWrap(true);
+  			generateNewText_Panel.add(Old_Text);
+  			
+  			JButton generate_Button = new JButton("Éú³É");
+  			generate_Button.setBounds(260, 140, 80, 25);
+  			generateNewText_Panel.add(generate_Button);
+  			
+  			JLabel NewText = new JLabel("Éú³ÉµÄĞÂÎÄ±¾£º");
+  			NewText.setBounds(100, 200, 120, 40);
+  			generateNewText_Panel.add(NewText);
+  			
+  			JTextArea New_Text = new JTextArea(5,15);
+  			New_Text.setBounds(200, 188, 300, 60);
+  			New_Text.setLineWrap(true);
+  			generateNewText_Panel.add(New_Text);
+  			
+  			generate_Button.addActionListener(new ActionListener() {
+  				public void actionPerformed(ActionEvent e)
+  				{
+  					New_Text.setText(generateNewText(Old_Text.getText()));
+  				}
+  			});
+  			
+  			generateNewText_frame.addWindowListener(new WindowAdapter() 
 				{
 					public void windowClosing(WindowEvent e)
 					{
 						generateNewText_frame.dispose();
 					}
 				});	
-    		}
-    	});
-    	
-    	JButton calcShortestPath_Button = new JButton("è®¡ç®—æœ€çŸ­è·¯å¾„");
-    	calcShortestPath_Button.setBounds(220, 200, 200, 35);
-    	choose_function_panel.add(calcShortestPath_Button);
-    	
-    	calcShortestPath_Button.addActionListener(new ActionListener() 
-    	{
+  		}
+  	});
+  	
+  	JButton calcShortestPath_Button = new JButton("¼ÆËã×î¶ÌÂ·¾¶");
+  	calcShortestPath_Button.setBounds(220, 200, 200, 35);
+  	choose_function_panel.add(calcShortestPath_Button);
+  	
+  	calcShortestPath_Button.addActionListener(new ActionListener() 
+  	{
 			public void actionPerformed(ActionEvent e)
 			{
-				JFrame calcShortestPath_frame = new JFrame("è®¡ç®—æœ€çŸ­è·¯å¾„");
+				JFrame calcShortestPath_frame = new JFrame("¼ÆËã×î¶ÌÂ·¾¶");
 				calcShortestPath_frame.setSize(600,400);
 				calcShortestPath_frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 				calcShortestPath_frame.setVisible(true);
@@ -719,59 +763,59 @@ public class GraphGenerate {
 				JTabbedPane tabbedpane = new  JTabbedPane();
 				
 				JPanel first_panel = new JPanel();
-				tabbedpane.addTab("è®¡ç®—ä¸¤ä¸ªå•è¯æœ€çŸ­è·¯å¾„", first_panel);
+				tabbedpane.addTab("¼ÆËãÁ½¸öµ¥´Ê×î¶ÌÂ·¾¶", first_panel);
 				
 				first_panel.setLayout(null);
-				JLabel FirstWord = new JLabel("ç¬¬ä¸€ä¸ªå•è¯ï¼š");
-    			FirstWord.setBounds(150, 20, 120, 40);
-    			first_panel.add(FirstWord);
-    			
-    			JTextField FirstText = new JTextField();
-    			FirstText.setBounds(260, 28, 165, 25);
-    			first_panel.add(FirstText);
-    			
-    			JLabel SecondWord = new JLabel("ç¬¬äºŒä¸ªå•è¯ï¼š");
-    			SecondWord.setBounds(150, 70, 120, 40);
-    			first_panel.add(SecondWord);
-    			
-    			JTextField SecondText = new JTextField();
-    			SecondText.setBounds(260, 78, 165, 25);
-    			first_panel.add(SecondText);
-    			
-    			JLabel tag1 = new JLabel("é€‰æ‹©è·¯å¾„é¢œè‰²");
-    			tag1.setBounds(60, 125, 120, 40);
-    			first_panel.add(tag1);
-    			
-    			JRadioButton colorButton1 = new JRadioButton("red");
-    			JRadioButton colorButton2 = new JRadioButton("yellow");
-    			JRadioButton colorButton3 = new JRadioButton("green");
-    			JRadioButton colorButton4 = new JRadioButton("blue");
-    			first_panel.add(colorButton1);
-    			first_panel.add(colorButton2);
-    			first_panel.add(colorButton3);
-    			first_panel.add(colorButton4);
-    			ButtonGroup group = new ButtonGroup();
-    			group.add(colorButton1);
-    			group.add(colorButton2);
-    			group.add(colorButton3);
-    			group.add(colorButton4);
-    			colorButton1.setBounds(150, 120, 70, 50);
-    			colorButton2.setBounds(230, 120, 70, 50);
-    			colorButton3.setBounds(310, 120, 70, 50);
-    			colorButton4.setBounds(390, 120, 70, 50);
-    			
-    			JButton calcShortestPath_Button = new JButton("è®¡ç®—");
-    			calcShortestPath_Button.setBounds(250, 180, 100, 25);
-    			first_panel.add(calcShortestPath_Button);
-    			
-    			JLabel result_tag = new JLabel("è®¡ç®—ç»“æœï¼š");
-    			result_tag.setBounds(80, 240, 120, 40);
-    			first_panel.add(result_tag);
-    			
-    			JTextArea result_Text = new JTextArea(5,15);
-    			result_Text.setLineWrap(true);
-    			
-    			JScrollPane scrollPane = new JScrollPane(result_Text);
+				JLabel FirstWord = new JLabel("µÚÒ»¸öµ¥´Ê£º");
+  			FirstWord.setBounds(150, 20, 120, 40);
+  			first_panel.add(FirstWord);
+  			
+  			JTextField FirstText = new JTextField();
+  			FirstText.setBounds(260, 28, 165, 25);
+  			first_panel.add(FirstText);
+  			
+  			JLabel SecondWord = new JLabel("µÚ¶ş¸öµ¥´Ê£º");
+  			SecondWord.setBounds(150, 70, 120, 40);
+  			first_panel.add(SecondWord);
+  			
+  			JTextField SecondText = new JTextField();
+  			SecondText.setBounds(260, 78, 165, 25);
+  			first_panel.add(SecondText);
+  			
+  			JLabel tag1 = new JLabel("Ñ¡ÔñÂ·¾¶ÑÕÉ«");
+  			tag1.setBounds(60, 125, 120, 40);
+  			first_panel.add(tag1);
+  			
+  			JRadioButton colorButton1 = new JRadioButton("red");
+  			JRadioButton colorButton2 = new JRadioButton("yellow");
+  			JRadioButton colorButton3 = new JRadioButton("green");
+  			JRadioButton colorButton4 = new JRadioButton("blue");
+  			first_panel.add(colorButton1);
+  			first_panel.add(colorButton2);
+  			first_panel.add(colorButton3);
+  			first_panel.add(colorButton4);
+  			ButtonGroup group = new ButtonGroup();
+  			group.add(colorButton1);
+  			group.add(colorButton2);
+  			group.add(colorButton3);
+  			group.add(colorButton4);
+  			colorButton1.setBounds(150, 120, 70, 50);
+  			colorButton2.setBounds(230, 120, 70, 50);
+  			colorButton3.setBounds(310, 120, 70, 50);
+  			colorButton4.setBounds(390, 120, 70, 50);
+  			
+  			JButton calcShortestPath_Button = new JButton("¼ÆËã");
+  			calcShortestPath_Button.setBounds(250, 180, 100, 25);
+  			first_panel.add(calcShortestPath_Button);
+  			
+  			JLabel result_tag = new JLabel("¼ÆËã½á¹û£º");
+  			result_tag.setBounds(80, 240, 120, 40);
+  			first_panel.add(result_tag);
+  			
+  			JTextArea result_Text = new JTextArea(5,15);
+  			result_Text.setLineWrap(true);
+  			
+  			JScrollPane scrollPane = new JScrollPane(result_Text);
 				scrollPane.validate();
 				scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 				scrollPane.setBounds(160, 230, 300, 60);
@@ -784,98 +828,98 @@ public class GraphGenerate {
 						if (colorButton1.isSelected())
 						{
 							calcShortestPath_Button.addActionListener(new ActionListener() 
-			    			{
+			  			{
 								public void actionPerformed(ActionEvent e)
-			    				{
+			  				{
 										result_Text.setText(calcShortestPath(FirstText.getText(),SecondText.getText(),"red"));
-			    				}
-			    			});
+			  				}
+			  			});
 						}
 					}
 				});
-    			
-    			colorButton2.addItemListener(new ItemListener() 
+  			
+  			colorButton2.addItemListener(new ItemListener() 
 				{
 					public void itemStateChanged(ItemEvent e)
 					{
 						if (colorButton2.isSelected())
 						{
 							calcShortestPath_Button.addActionListener(new ActionListener() 
-			    			{
+			  			{
 								public void actionPerformed(ActionEvent e)
-			    				{
+			  				{
 									result_Text.setText(calcShortestPath(FirstText.getText(),SecondText.getText(),"yellow"));
-			    				}
-			    			});
+			  				}
+			  			});
 						}
 					}
 				});
-    			
-    			colorButton3.addItemListener(new ItemListener() 
+  			
+  			colorButton3.addItemListener(new ItemListener() 
 				{
 					public void itemStateChanged(ItemEvent e)
 					{
 						if (colorButton3.isSelected())
 						{
 							calcShortestPath_Button.addActionListener(new ActionListener() 
-			    			{
+			  			{
 								public void actionPerformed(ActionEvent e)
-			    				{
+			  				{
 									result_Text.setText(calcShortestPath(FirstText.getText(),SecondText.getText(),"green"));
-			    				}
-			    			});
+			  				}
+			  			});
 						}
 					}
 				});
-    			
-    			colorButton4.addItemListener(new ItemListener() 
+  			
+  			colorButton4.addItemListener(new ItemListener() 
 				{
 					public void itemStateChanged(ItemEvent e)
 					{
 						if (colorButton4.isSelected())
 						{
 							calcShortestPath_Button.addActionListener(new ActionListener() 
-			    			{
+			  			{
 								public void actionPerformed(ActionEvent e)
-			    				{
+			  				{
 									result_Text.setText(calcShortestPath(FirstText.getText(),SecondText.getText(),"blue"));
-			    				}
-			    			});
+			  				}
+			  			});
 						}
 					}
 				});
 
 				
 				JPanel second_panel = new JPanel();
-				tabbedpane.addTab("è®¡ç®—ä¸€ä¸ªå•è¯æœ€çŸ­è·¯å¾„", second_panel);
+				tabbedpane.addTab("¼ÆËãÒ»¸öµ¥´Ê×î¶ÌÂ·¾¶", second_panel);
 				
 				second_panel.setLayout(null);
 				
-				JLabel word = new JLabel("è¯·è¾“å…¥å•è¯ï¼š");
-    			word.setBounds(160, 60, 120, 40);
-    			second_panel.add(word);
-    			
-    			JTextField text = new JTextField();
-    			text.setBounds(260, 68, 165, 25);
-    			second_panel.add(text);
-    			
-    			JButton calc_Button = new JButton("è®¡ç®—");
-    			calc_Button.setBounds(250, 120, 100, 25);
-    			second_panel.add(calc_Button);
-    			
-    			JTextArea result_text = new JTextArea(5,15);
-    			result_text.setLineWrap(true);
-    			
-    			JScrollPane new_scrollPane = new JScrollPane(result_text);
-    			new_scrollPane.validate();
-    			new_scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-    			new_scrollPane.setBounds(150, 180, 300, 60);
-    			second_panel.add(new_scrollPane);
-    			
-    			calc_Button.addActionListener(new ActionListener() 
-    			{
+				JLabel word = new JLabel("ÇëÊäÈëµ¥´Ê£º");
+  			word.setBounds(160, 60, 120, 40);
+  			second_panel.add(word);
+  			
+  			JTextField text = new JTextField();
+  			text.setBounds(260, 68, 165, 25);
+  			second_panel.add(text);
+  			
+  			JButton calc_Button = new JButton("¼ÆËã");
+  			calc_Button.setBounds(250, 120, 100, 25);
+  			second_panel.add(calc_Button);
+  			
+  			JTextArea result_text = new JTextArea(5,15);
+  			result_text.setLineWrap(true);
+  			
+  			JScrollPane new_scrollPane = new JScrollPane(result_text);
+  			new_scrollPane.validate();
+  			new_scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+  			new_scrollPane.setBounds(150, 180, 300, 60);
+  			second_panel.add(new_scrollPane);
+  			
+  			calc_Button.addActionListener(new ActionListener() 
+  			{
 					public void actionPerformed(ActionEvent e)
-    				{
+  				{
 						String[] new_result = calcShortestPath(text.getText(),1);
 						for (int i = 0 ; i < new_result.length ; i++)
 						{
@@ -883,8 +927,8 @@ public class GraphGenerate {
 							result_text.append(new_result[i]);
 							result_text.append("\n");
 						}
-    				}
-    			});
+  				}
+  			});
 				
 				calcShortestPath_frame.setContentPane(tabbedpane);
 				
@@ -897,37 +941,37 @@ public class GraphGenerate {
 				});	
 			}
 		});
-    	
-    	JButton randomWalk_Button = new JButton("éšæœºæ¸¸èµ°");
-    	randomWalk_Button.setBounds(220, 255, 200, 35);
-    	choose_function_panel.add(randomWalk_Button);
-    	
-    	randomWalk_Button.addActionListener(new ActionListener() 
-    	{
+  	
+  	JButton randomWalk_Button = new JButton("Ëæ»úÓÎ×ß");
+  	randomWalk_Button.setBounds(220, 255, 200, 35);
+  	choose_function_panel.add(randomWalk_Button);
+  	
+  	randomWalk_Button.addActionListener(new ActionListener() 
+  	{
 			public void actionPerformed(ActionEvent e)
 			{
-				JFrame randomWalk_frame = new JFrame("éšæœºæ¸¸èµ°");
+				JFrame randomWalk_frame = new JFrame("Ëæ»úÓÎ×ß");
 				randomWalk_frame.setSize(600,400);
 				randomWalk_frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 				randomWalk_frame.setVisible(true);
-    			
-    			JPanel randomWalk_Panel = new JPanel();
-    			randomWalk_frame.add(randomWalk_Panel);
-    			
-    			randomWalk_Panel.setLayout(null);
-    			
-    			JLabel randomWalk_tag = new JLabel("éšæœºæ¸¸èµ°ç»“æœï¼š");
-    			randomWalk_tag.setBounds(60, 40, 120, 40);
-    			randomWalk_Panel.add(randomWalk_tag);
-    			
-    			JTextArea result_Text = new JTextArea(5,15);
-    			result_Text.setBounds(160, 40, 400, 200);
-    			result_Text.setLineWrap(true);
-    			randomWalk_Panel.add(result_Text);
-    			
-    			result_Text.setText(randomWalk());
-    			
-    			randomWalk_frame.addWindowListener(new WindowAdapter() 
+  			
+  			JPanel randomWalk_Panel = new JPanel();
+  			randomWalk_frame.add(randomWalk_Panel);
+  			
+  			randomWalk_Panel.setLayout(null);
+  			
+  			JLabel randomWalk_tag = new JLabel("Ëæ»úÓÎ×ß½á¹û£º");
+  			randomWalk_tag.setBounds(60, 40, 120, 40);
+  			randomWalk_Panel.add(randomWalk_tag);
+  			
+  			JTextArea result_Text = new JTextArea(5,15);
+  			result_Text.setBounds(160, 40, 400, 200);
+  			result_Text.setLineWrap(true);
+  			randomWalk_Panel.add(result_Text);
+  			
+  			result_Text.setText(randomWalk());
+  			
+  			randomWalk_frame.addWindowListener(new WindowAdapter() 
 				{
 					public void windowClosing(WindowEvent e)
 					{
@@ -936,6 +980,6 @@ public class GraphGenerate {
 				});	
 			}
 		});
-    }
+  }
 }
 
